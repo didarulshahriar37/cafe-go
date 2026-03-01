@@ -11,6 +11,7 @@ import {
     Loader2
 } from 'lucide-react';
 import socketService from '../../services/api/socket.service';
+import apiClient from '../../services/api/axios.client';
 
 const steps = [
     { key: 'PENDING_KITCHEN', label: 'Order Received', icon: Clock },
@@ -21,25 +22,50 @@ const steps = [
 export default function OrderTracking() {
     const { orderId } = useParams();
     const [status, setStatus] = useState('PENDING_KITCHEN');
+    const [loading, setLoading] = useState(true);
     const [lastUpdate, setLastUpdate] = useState(new Date().toLocaleTimeString());
 
     useEffect(() => {
         if (!orderId) return;
 
+        // 1. Initial Fetch to get CURRENT state (handles refreshes)
+        const fetchInitialStatus = async () => {
+            try {
+                const response = await apiClient.get(`/orders/${orderId}`);
+                if (response.data && response.data.status) {
+                    setStatus(response.data.status);
+                }
+            } catch (error) {
+                console.error("Failed to fetch initial order status", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchInitialStatus();
+
+        // 2. Real-time updates via Socket
         socketService.subscribeToOrder(orderId, (data) => {
             setStatus(data.status);
             setLastUpdate(new Date().toLocaleTimeString());
         });
 
         return () => {
-            // In a real app, you might want to unsubscribe specifically
-            // For this hackathon, we'll keep it simple
+            // socketService.unsubscribe(orderId);
         };
     }, [orderId]);
 
     const getCurrentStepIndex = () => {
         return steps.findIndex(step => step.key === status);
     };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <Loader2 className="w-12 h-12 text-amber-500 animate-spin" />
+            </div>
+        );
+    }
 
     const currentStepIndex = getCurrentStepIndex();
 
