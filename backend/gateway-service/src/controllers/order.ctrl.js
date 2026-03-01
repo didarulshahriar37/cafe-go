@@ -34,6 +34,25 @@ async function handlePlaceOrder(req, res, next) {
     }
 }
 
+async function handleGetOrder(req, res, next) {
+    try {
+        const { id } = req.params;
+        const kitchenUrl = process.env.KITCHEN_SERVICE_URL || 'http://127.0.0.1:3002';
+        const response = await fetch(`${kitchenUrl}/orders/${id}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+            return res.status(response.status).json(data);
+        }
+
+        res.json(data);
+    } catch (error) {
+        console.error('❌ Gateway GetOrder Error:', error);
+        next(error);
+    }
+}
+
 module.exports = {
-    handlePlaceOrder
+    handlePlaceOrder,
+    handleGetOrder
 };

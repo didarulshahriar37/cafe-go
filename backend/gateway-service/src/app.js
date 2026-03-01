@@ -30,13 +30,18 @@ app.use('/api', express.json(), apiRoutes);
 // Reverse Proxy for catalog browsing (no business logic in Gateway for this)
 // Routes directly to stock-service
 app.use('/api/stock', createProxyMiddleware({
-    target: process.env.STOCK_SERVICE_URL || 'http://localhost:3001',
+    target: process.env.STOCK_SERVICE_URL || 'http://127.0.0.1:3001',
     changeOrigin: true
 }));
 
 app.use((err, req, res, next) => {
-    console.error('Unhandled Gateway Error:', err);
-    res.status(500).json({ error: 'Internal Gateway Error' });
+    console.error('❌ Unhandled Gateway Error:', err.message || err);
+    if (err.stack) console.error(err.stack);
+    res.status(500).json({
+        error: 'Internal Gateway Error',
+        message: err.message,
+        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
 });
 
 module.exports = app;

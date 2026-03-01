@@ -3,6 +3,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const { metricsMiddleware, getMetrics } = require('./utils/metrics');
 const { chaosMiddleware, toggleChaos, getChaosState } = require('./utils/chaos');
+const { getDB } = require('./db/mongo');
 
 const app = express();
 app.use(metricsMiddleware);
@@ -25,6 +26,17 @@ app.post('/chaos/toggle', (req, res) => {
 
 app.get('/metrics', (req, res) => {
     res.json(getMetrics('kitchen-service'));
+});
+
+app.get('/orders/:id', async (req, res) => {
+    try {
+        const db = getDB();
+        const order = await db.collection('orders').findOne({ idempotencyKey: req.params.id });
+        if (!order) return res.status(404).json({ error: 'Order not found' });
+        res.json(order);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 module.exports = app;

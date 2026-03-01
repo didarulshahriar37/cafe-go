@@ -49,9 +49,9 @@ async function checkStockWithCache(items) {
  * @returns {Promise} - Stock check response
  */
 async function fetchStockFromService(items) {
-    const stockUrl = process.env.STOCK_SERVICE_URL || 'http://localhost:3001';
+    const stockUrl = process.env.STOCK_SERVICE_URL || 'http://127.0.0.1:3001';
 
-    const response = await fetch(`${stockUrl}/api/stock/check`, {
+    const response = await fetch(`${stockUrl}/check`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -64,7 +64,8 @@ async function fetchStockFromService(items) {
     if (!response.ok) {
         throw new Error(JSON.stringify({
             status: response.status,
-            data: stockData
+            data: stockData,
+            message: `Gateway StockCheck failed: ${stockData.message || response.statusText}`
         }));
     }
 

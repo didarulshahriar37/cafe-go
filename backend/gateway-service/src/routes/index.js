@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const { verifyAuthToken } = require('../middleware/auth');
-const { handlePlaceOrder } = require('../controllers/order.ctrl');
+const { handlePlaceOrder, handleGetOrder } = require('../controllers/order.ctrl');
 const { syncUser } = require('../controllers/user.ctrl');
 
 // API routes inside Gateway
 router.post('/users/sync', verifyAuthToken, syncUser);
 router.post('/orders', verifyAuthToken, handlePlaceOrder);
+router.get('/orders/:id', verifyAuthToken, handleGetOrder);
 
 module.exports = router;

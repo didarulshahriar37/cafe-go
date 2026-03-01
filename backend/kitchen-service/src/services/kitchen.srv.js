@@ -19,7 +19,12 @@ async function processOrder(orderData) {
     const db = getDB();
     const ordersCollection = db.collection('orders');
 
-    // 1. Initial status: UPDATING TO 'COOKING'
+    // 1. Initial State: Already 'PENDING_KITCHEN' from Gateway
+    // We wait 3 seconds in 'Order Received' state as requested
+    console.log(`[Kitchen] ⏳ Order ${orderData.idempotencyKey} received. Waiting in queue (3s)...`);
+    await new Promise(resolve => setTimeout(resolve, 3000));
+
+    // 2. Transition to 'COOKING' (In the Kitchen)
     await ordersCollection.updateOne(
         { idempotencyKey: orderData.idempotencyKey },
         {
@@ -29,7 +34,7 @@ async function processOrder(orderData) {
                 updatedAt: new Date()
             }
         },
-        { upsert: true } // Create if doesn't exist (first time kitchen sees it)
+        { upsert: true }
     );
 
     publishStatusUpdate({
@@ -38,12 +43,11 @@ async function processOrder(orderData) {
         userEmail: orderData.userEmail
     });
 
-    // 2. Simulate Culinary Magic (3-5 seconds)
-    const delay = Math.floor(Math.random() * (5000 - 3000 + 1) + 3000);
-    console.log(`[Kitchen] Cooking order ${orderData.idempotencyKey}... (${delay}ms)`);
-    await new Promise(resolve => setTimeout(resolve, delay));
+    // 3. Simulate Culinary Magic (7 seconds as requested)
+    console.log(`[Kitchen] 🍳 COOKING order ${orderData.idempotencyKey}... (7s)`);
+    await new Promise(resolve => setTimeout(resolve, 7000));
 
-    // 3. Final status: COMPLETED
+    // 4. Final status: READY_FOR_PICKUP
     await ordersCollection.updateOne(
         { idempotencyKey: orderData.idempotencyKey },
         {
@@ -63,7 +67,7 @@ async function processOrder(orderData) {
     ordersProcessedCounter.inc();
     end();
 
-    console.log(`[Kitchen] Order ${orderData.idempotencyKey} is READY!`);
+    console.log(`[Kitchen] ✅ Order ${orderData.idempotencyKey} is READY!`);
 }
 
 module.exports = {

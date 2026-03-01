@@ -58,7 +58,7 @@ async function reserveStock(items, idempotencyKey) {
                 { returnDocument: 'after' } // Returns the updated document
             );
 
-            if (!result.value) {
+            if (!result) {
                 // If it returns null, it means there either isn't enough stock or the item doesn't exist.
                 transactionFailed = true;
                 break;
@@ -67,8 +67,8 @@ async function reserveStock(items, idempotencyKey) {
             reservedItems.push({
                 itemId,
                 quantity,
-                title: result.value.title,
-                remainingStock: result.value.stock
+                title: result.title,
+                remainingStock: result.stock
             });
 
         } catch (error) {
@@ -103,7 +103,31 @@ async function getInventory() {
     return await inventoryCollection.find({}).toArray();
 }
 
+/**
+ * Read-only check for stock availability
+ * Does NOT decrement stock. Perfect for pre-checkout validation.
+ */
+async function checkStock(items) {
+    const db = getDB();
+    const inventoryCollection = db.collection('inventory');
+
+    for (const item of items) {
+        const { itemId, quantity } = item;
+        const record = await inventoryCollection.findOne({
+            _id: new ObjectId(itemId),
+            stock: { $gte: quantity }
+        });
+
+        if (!record) {
+            throw new Error(`Insufficient stock or item not found for ID: ${itemId}`);
+        }
+    }
+
+    return { available: true };
+}
+
 module.exports = {
     reserveStock,
-    getInventory
+    getInventory,
+    checkStock
 };

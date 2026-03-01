@@ -1,4 +1,4 @@
-const { reserveStock, getInventory } = require('../services/stock.srv');
+const { reserveStock, getInventory, checkStock } = require('../services/stock.srv');
 
 async function listItems(req, res, next) {
     try {
@@ -36,7 +36,21 @@ async function handleCheckout(req, res, next) {
     }
 }
 
+async function handleCheckStock(req, res, next) {
+    try {
+        const { items } = req.body;
+        if (!items || !Array.isArray(items) || items.length === 0) {
+            return res.status(400).json({ error: 'Array of items is required' });
+        }
+        const result = await checkStock(items);
+        return res.status(200).json(result);
+    } catch (error) {
+        return res.status(409).json({ error: 'Stock Check Failed', message: error.message });
+    }
+}
+
 module.exports = {
     handleCheckout,
-    listItems
+    listItems,
+    handleCheckStock
 };

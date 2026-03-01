@@ -19,10 +19,10 @@ async function orchestrateOrder(user, items, idempotencyKey) {
     await checkStockWithCache(items);
 
     // 3. HTTP Call to Stock Service for Actual Reservation
-    const stockUrl = process.env.STOCK_SERVICE_URL || 'http://localhost:3001';
+    const stockUrl = process.env.STOCK_SERVICE_URL || 'http://127.0.0.1:3001';
 
-    // We use native fetch (available in Node 18+)
-    const response = await fetch(`${stockUrl}/api/stock/checkout`, {
+    console.log(`[Gateway Order] Reserving stock at ${stockUrl}/checkout for ID: ${idempotencyKey}`);
+    const response = await fetch(`${stockUrl}/checkout`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -37,7 +37,8 @@ async function orchestrateOrder(user, items, idempotencyKey) {
         // Stock reservation failed (e.g., 409 Conflict - Insufficient stock)
         throw new Error(JSON.stringify({
             status: response.status,
-            data: stockData
+            data: stockData,
+            message: `Gateway Reservation failed: ${stockData.message || response.statusText}`
         }));
     }
 
