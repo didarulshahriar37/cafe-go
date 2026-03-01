@@ -2,26 +2,13 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/shared/ProtectedRoute';
-import Login from './pages/shared/Login';
 
-// Placeholder purely to display the Logout button for testing
-import { useAuth } from './context/AuthContext';
-const DummyDashboard = () => {
-    const { currentUser, logout, token } = useAuth();
-    return (
-        <div className="p-10 bg-slate-900 min-h-screen text-white">
-            <h1 className="text-3xl text-amber-400 mb-4">Dashboard</h1>
-            <p>Welcome, {currentUser?.email}</p>
-            <button
-                onClick={logout}
-                className="mt-6 px-4 py-2 bg-rose-500 rounded text-slate-900 font-bold hover:bg-rose-400"
-            >
-                Log Out
-            </button>
-            <p className="mt-10 text-xs text-slate-500 max-w-xl break-all">RAW JWT TOKEN FOR HEADERS: {token}</p>
-        </div>
-    );
-};
+// Layouts
+import StudentLayout from './layouts/StudentLayout';
+
+// Pages
+import Login from './pages/shared/Login';
+import MenuDashboard from './pages/student/MenuDashboard';
 
 export default function App() {
     return (
@@ -33,8 +20,14 @@ export default function App() {
 
                     {/* Protected Routes Wrapper */}
                     <Route element={<ProtectedRoute />}>
-                        <Route path="/" element={<DummyDashboard />} />
-                        {/* the rest of our Admin and Student pages will go here! */}
+
+                        {/* Student Flow */}
+                        <Route element={<StudentLayout />}>
+                            <Route path="/" element={<MenuDashboard />} />
+                            {/* Track Order page will go here */}
+                        </Route>
+
+                        {/* Admin Flow will go here */}
                     </Route>
 
                 </Routes>

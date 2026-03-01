@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+@theme {
+    --color-brand-gold: #fbbf24;
+    --color-brand-dark: #0f172a;
+    --color-brand-surface: #1e293b;
+}
+
+body {
+    @apply bg-slate-900 text-slate-100 antialiased;
+    font-family: 'Outfit', sans-serif;
+}
+
+.glass-card {
+    @apply bg-slate-800/80 backdrop-blur-md border border-slate-700/50 rounded-2xl shadow-2xl;
+}
+
+.luminous-button {
+    @apply bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold py-3 px-6 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-lg shadow-amber-500/20 active:shadow-none uppercase tracking-widest text-sm flex items-center justify-center gap-2;
+}
+
+.secondary-button {
+    @apply bg-slate-700 hover:bg-slate-600 text-slate-100 font-semibold py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2 border border-slate-600;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    @apply bg-slate-900;
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-slate-700 rounded-full hover:bg-slate-600;
+}
