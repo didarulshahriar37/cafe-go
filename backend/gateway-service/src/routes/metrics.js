@@ -1,13 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const client = require('prom-client');
+const { metricsHandler } = require('../middleware/metrics');
 
-const register = new client.Registry();
-client.collectDefaultMetrics({ register });
-
-router.get('/metrics', async (req, res) => {
-    res.set('Content-Type', register.contentType);
-    res.end(await register.metrics());
-});
+// simple JSON endpoint, metricsMiddleware records data on every request
+router.get('/metrics', metricsHandler);
 
 module.exports = router;

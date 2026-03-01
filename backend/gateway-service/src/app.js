@@ -7,17 +7,22 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const apiRoutes = require('./routes/index');
 const healthRoute = require('./routes/health');
 const metricsRoute = require('./routes/metrics');
+const adminRoute = require('./routes/admin');
+const { metricsMiddleware } = require('./middleware/metrics');
 
 const app = express();
 
 app.use(helmet());
 app.use(cors());
+// Metrics middleware must wrap everything so we record each call
+app.use(metricsMiddleware);
 // Exclude proxy routes from body-parser since proxying requires streaming bodies
 app.use(morgan('combined'));
 
 // Standard routes
 app.use('/', healthRoute);
 app.use('/', metricsRoute);
+app.use('/', adminRoute);
 
 // Order flow logic (with JSON parser since this route expects req.body)
 app.use('/api', express.json(), apiRoutes);

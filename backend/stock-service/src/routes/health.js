@@ -10,9 +10,14 @@ router.get('/health', async (req, res) => {
 
         // Check MongoDB Connection
         await db.command({ ping: 1 });
-
         // Check Redis Connection
         await redis.ping();
+
+        // Chaos toggle check (value '1' means disabled)
+        const chaos = await redis.get('chaos:stock-service');
+        if (chaos === '1') {
+            return res.status(503).json({ status: 'DOWN', reason: 'disabled-by-admin' });
+        }
 
         res.status(200).json({ status: 'UP', service: 'stock-service' });
     } catch (error) {
