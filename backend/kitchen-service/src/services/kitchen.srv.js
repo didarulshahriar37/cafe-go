@@ -20,9 +20,9 @@ async function processOrder(orderData) {
     const ordersCollection = db.collection('orders');
 
     // 1. Initial State: Already 'PENDING_KITCHEN' from Gateway
-    // We wait 3 seconds in 'Order Received' state as requested
-    console.log(`[Kitchen] ⏳ Order ${orderData.idempotencyKey} received. Waiting in queue (3s)...`);
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    // We wait 5 seconds in 'Order Received' state as requested
+    console.log(`[Kitchen] ⏳ Order ${orderData.idempotencyKey} received. Waiting in queue (5s)...`);
+    await new Promise(resolve => setTimeout(resolve, 5000));
 
     // 2. Transition to 'COOKING' (In the Kitchen)
     await ordersCollection.updateOne(

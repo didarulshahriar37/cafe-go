@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const { metricsMiddleware, getMetrics } = require('./utils/metrics');
+const { metricsMiddleware, getMetrics, resetMetrics } = require('./utils/metrics');
 const { chaosMiddleware, toggleChaos, getChaosState } = require('./utils/chaos');
 
 // Database and Infrastructure Connections
@@ -43,6 +43,11 @@ app.post('/chaos/toggle', (req, res) => {
 
 app.get('/metrics', (req, res) => {
     res.json(getMetrics('kitchen-service'));
+});
+
+app.post('/metrics/reset', (req, res) => {
+    resetMetrics();
+    res.json({ message: 'Metrics reset successfully' });
 });
 
 app.get('/orders/:id', async (req, res) => {

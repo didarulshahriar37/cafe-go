@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     ShieldAlert, Zap, Globe, Box, ChefHat, Bell,
     ToggleLeft, ToggleRight, Activity,
-    BarChart3, AlertCircle, Clock, Server
+    BarChart3, AlertCircle, Clock, Server, RefreshCw
 } from 'lucide-react';
 
 // Services list is reused; each entry may be overridden by an env var
@@ -19,7 +19,7 @@ function getServiceUrl(service) {
     const envKey = `VITE_${service.name.toUpperCase()}_URL`;
     const url = import.meta.env[envKey];
     console.log(`[getServiceUrl] ${envKey} = ${url || '(not set)'}`);
-    
+
     if (url) return url.replace(/\/api\/?$/i, '');
 
     if (import.meta.env.MODE === 'production') {
@@ -51,12 +51,12 @@ export default function AdminDashboard() {
                 mResults[service.name] = null;
                 continue;
             }
-            
+
             console.log(`[AdminDashboard] ${service.name}: fetching from ${url}`);
-            
+
             // Fetch Health
             try {
-                const hRes = await axios.get(`${url}/health`, { timeout: 1000 });
+                const hRes = await axios.get(`${url}/health`, { timeout: 5000 });
                 console.log(`[AdminDashboard] ${service.name} /health: OK`, hRes.data);
                 hResults[service.name] = hRes.data;
             } catch (err) {
@@ -66,7 +66,7 @@ export default function AdminDashboard() {
 
             // Fetch Metrics
             try {
-                const mRes = await axios.get(`${url}/metrics`, { timeout: 1000 });
+                const mRes = await axios.get(`${url}/metrics`, { timeout: 5000 });
                 console.log(`[AdminDashboard] ${service.name} /metrics: OK`);
                 mResults[service.name] = mRes.data;
             } catch (err) {
@@ -104,6 +104,19 @@ export default function AdminDashboard() {
         }
     };
 
+    const clearMetrics = async () => {
+        for (const service of SERVICES) {
+            const url = getServiceUrl(service);
+            if (!url) continue;
+            try {
+                await axios.post(`${url}/metrics/reset`);
+            } catch (err) {
+                console.warn(`Failed to reset metrics for ${service.name}`);
+            }
+        }
+        await fetchData();
+    };
+
     // Global Stats Aggregation
     const globalRequests = Object.values(metrics).reduce((acc, curr) => acc + (curr?.total_requests || 0), 0);
     const globalFailures = Object.values(metrics).reduce((acc, curr) => acc + (curr?.failed_requests || 0), 0);
@@ -129,11 +142,19 @@ export default function AdminDashboard() {
                     </div>
                 </div>
 
-                <div className="flex flex-col items-end gap-1">
-                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Last Real-time Sync</span>
-                    <span className="text-sm font-mono text-amber-500/80 bg-amber-500/5 px-3 py-1 rounded-lg border border-amber-500/10">
-                        {lastSync}
-                    </span>
+                <div className="flex flex-col md:flex-row items-center gap-4">
+                    <button
+                        onClick={clearMetrics}
+                        className="px-6 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 rounded-xl border border-rose-500/20 text-xs font-bold uppercase tracking-widest transition-all"
+                    >
+                        Reset System Failures
+                    </button>
+                    <div className="flex flex-col items-end gap-1">
+                        <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Last Real-time Sync</span>
+                        <span className="text-sm font-mono text-amber-500/80 bg-amber-500/5 px-3 py-1 rounded-lg border border-amber-500/10">
+                            {lastSync}
+                        </span>
+                    </div>
                 </div>
             </header>
 
@@ -184,18 +205,50 @@ export default function AdminDashboard() {
                                     </div>
 
                                     <div className="flex flex-col items-center gap-2">
-                                        <span className="text-[10px] font-bold text-slate-500 uppercase">Chaos</span>
-                                        <button
+                                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Chaos Control</span>
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
                                             onClick={() => toggleChaos(service)}
                                             disabled={loading[service.name]}
-                                            className={`transition-all ${loading[service.name] ? 'opacity-30' : 'hover:scale-110 active:scale-95'}`}
+                                            className="relative focus:outline-none group px-2 py-1"
                                         >
-                                            {isChaos ? (
-                                                <ToggleRight className="w-14 h-14 text-rose-500" />
-                                            ) : (
-                                                <ToggleLeft className="w-14 h-14 text-slate-700" />
+                                            <div className={`w-16 h-8 rounded-full transition-all duration-500 flex items-center px-1.5 ${isChaos ? 'bg-rose-500/20 border border-rose-500/50' : 'bg-slate-800 border border-slate-700'
+                                                } ${loading[service.name] ? 'opacity-50' : ''}`}>
+                                                <motion.div
+                                                    animate={{
+                                                        x: isChaos ? 28 : 0,
+                                                        backgroundColor: loading[service.name] ? '#f59e0b' : (isChaos ? '#f43f5e' : '#475569'),
+                                                        boxShadow: isChaos ? '0 0 20px rgba(244, 63, 94, 0.6)' : 'none',
+                                                        rotate: loading[service.name] ? 360 : 0
+                                                    }}
+                                                    transition={loading[service.name]
+                                                        ? { repeat: Infinity, duration: 1, ease: "linear" }
+                                                        : { type: "spring", stiffness: 500, damping: 30 }
+                                                    }
+                                                    className="w-6 h-6 rounded-full flex items-center justify-center relative z-10"
+                                                >
+                                                    {loading[service.name] ? (
+                                                        <RefreshCw className="w-3 h-3 text-white" />
+                                                    ) : (
+                                                        <Zap className={`w-3 h-3 ${isChaos ? 'text-white' : 'text-slate-400'}`} />
+                                                    )}
+                                                </motion.div>
+                                            </div>
+
+                                            {/* Status Badge Pulse */}
+                                            {isChaos && !loading[service.name] && (
+                                                <motion.div
+                                                    layoutId={`chaos-aura-${service.name}`}
+                                                    initial={{ opacity: 0, scale: 0.8 }}
+                                                    animate={{ opacity: [0.2, 0.4, 0.2], scale: [1, 1.3, 1] }}
+                                                    transition={{ repeat: Infinity, duration: 1.5 }}
+                                                    className="absolute inset-0 bg-rose-500/30 blur-xl rounded-full -z-10"
+                                                />
                                             )}
-                                        </button>
+
+                                            <span className="sr-only">Toggle Chaos</span>
+                                        </motion.button>
                                     </div>
                                 </div>
 

@@ -36,15 +36,17 @@ app.get('/', (req, res) => res.json({ status: 'Gateway Service is Live' }));
 app.use('/', healthRoute);
 app.use('/', metricsRoute);
 
-// Order flow logic (with JSON parser since this route expects req.body)
-app.use('/api', express.json(), apiRoutes);
-
 // Reverse Proxy for catalog browsing (no business logic in Gateway for this)
 // Routes directly to stock-service
+// We put this BEFORE express.json() to prevent body-parser from consuming the stream
 app.use('/api/stock', createProxyMiddleware({
     target: process.env.STOCK_SERVICE_URL || 'http://127.0.0.1:3001',
-    changeOrigin: true
+    changeOrigin: true,
+    pathRewrite: { '^/api/stock': '' } // Maps /api/stock -> / in target (stock-service)
 }));
+
+// Order flow logic (with JSON parser since this route expects req.body)
+app.use('/api', express.json(), apiRoutes);
 
 app.use((err, req, res, next) => {
     console.error('❌ Unhandled Gateway Error:', err.message || err);

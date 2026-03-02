@@ -58,7 +58,7 @@ export default function Login() {
                     </h1>
 
                     <p className="text-slate-400 text-lg lg:text-xl max-w-xl leading-relaxed mb-10">
-                        The ultimate smart cafeteria system designed for a seamless Iftar and Suhoor experience. Pure speed, precision, and elegance.
+                        The ultimate smart cafeteria system designed for a seamless Iftar experience. Pure speed, precision, and elegance.
                     </p>
 
                     <div className="flex items-center justify-center lg:justify-start gap-8 opacity-50">
@@ -116,7 +116,7 @@ export default function Login() {
                                     type="email"
                                     required
                                     className="block w-full pl-12 pr-4 py-4 bg-slate-800/50 border border-slate-700 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all font-mono"
-                                    placeholder="your-email@iut-dhaka.edu"
+                                    placeholder="Enter your email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                 />
@@ -130,7 +130,7 @@ export default function Login() {
                                     type="password"
                                     required
                                     className="block w-full pl-12 pr-4 py-4 bg-slate-800/50 border border-slate-700 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all"
-                                    placeholder="Enter your student password"
+                                    placeholder="Enter your password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                 />
