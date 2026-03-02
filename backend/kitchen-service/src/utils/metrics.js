@@ -16,12 +16,20 @@ const metricsMiddleware = (req, res, next) => {
         metrics.totalResponseTime += timeInMs;
         metrics.avgResponseTime = metrics.totalResponseTime / metrics.totalRequests;
 
-        if (res.statusCode >= 400) {
+        if (res.statusCode >= 500) {
             metrics.failures++;
         }
     });
 
     next();
+};
+
+const resetMetrics = () => {
+    metrics.totalRequests = 0;
+    metrics.failures = 0;
+    metrics.totalResponseTime = 0;
+    metrics.avgResponseTime = 0;
+    metrics.startTime = Date.now();
 };
 
 const getMetrics = (serviceName) => {
@@ -37,4 +45,4 @@ const getMetrics = (serviceName) => {
     };
 };
 
-module.exports = { metricsMiddleware, getMetrics };
+module.exports = { metricsMiddleware, getMetrics, resetMetrics };

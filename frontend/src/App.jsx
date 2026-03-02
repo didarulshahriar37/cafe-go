@@ -21,16 +21,20 @@ export default function App() {
                     <Route path="/login" element={<Login />} />
 
                     {/* Protected Routes Wrapper */}
-                    <Route element={<ProtectedRoute />}>
 
-                        {/* Student Flow */}
+                    {/* Student-only Flow */}
+                    <Route element={<ProtectedRoute allowedRoles={['student']} />}>
                         <Route element={<StudentLayout />}>
                             <Route path="/" element={<MenuDashboard />} />
                             <Route path="/track/:orderId" element={<OrderTracking />} />
+                        </Route>
+                    </Route>
+
+                    {/* Admin-only Flow */}
+                    <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+                        <Route element={<StudentLayout />}> {/* Reuse layout or make separate one if needed later */}
                             <Route path="/admin/chaos" element={<AdminDashboard />} />
                         </Route>
-
-                        {/* Admin Flow will go here */}
                     </Route>
 
                 </Routes>

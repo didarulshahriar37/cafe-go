@@ -127,7 +127,7 @@ export default function MenuDashboard() {
                 <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-extrabold text-white tracking-tight">CafeGo <span className="text-amber-500">Menu</span></h1>
-                        <p className="text-slate-400 mt-1">Select your Iftar or Suhoor favorites.</p>
+                        <p className="text-slate-400 mt-1">Select your Iftar favorites.</p>
                     </div>
 
                     <button
@@ -190,7 +190,7 @@ export default function MenuDashboard() {
                             <div className="p-5">
                                 <div className="flex justify-between items-start mb-2">
                                     <h3 className="text-lg font-bold text-white uppercase tracking-tight">{item.title}</h3>
-                                    <span className="text-amber-500 font-bold tracking-wider">${item.price}</span>
+                                    <span className="text-amber-500 font-bold tracking-wider">৳{item.price}</span>
                                 </div>
                                 <p className="text-xs text-slate-400 mb-5 line-clamp-2 leading-relaxed">
                                     {item.description || "A delicious traditional choice for your Ramadan meal, prepared fresh daily."}
@@ -255,7 +255,7 @@ export default function MenuDashboard() {
                                 >
                                     <div className="flex flex-col">
                                         <span className="text-sm font-bold text-slate-200">{item.title}</span>
-                                        <span className="text-xs text-amber-500/70 font-medium">${item.price} x {item.qty}</span>
+                                        <span className="text-xs text-amber-500/70 font-medium">৳{item.price} x {item.qty}</span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <button onClick={() => removeFromCart(item._id)} className="p-1 hover:text-rose-400 transition-colors">
@@ -274,7 +274,7 @@ export default function MenuDashboard() {
                     <div className="border-t border-slate-700/50 pt-6 space-y-6">
                         <div className="flex justify-between items-center">
                             <span className="text-slate-400 font-medium uppercase tracking-widest text-xs">Iftar Total</span>
-                            <span className="text-3xl font-black text-white">${cartTotal.toFixed(2)}</span>
+                            <span className="text-3xl font-black text-white">৳{cartTotal.toFixed(2)}</span>
                         </div>
 
                         <button

@@ -46,20 +46,22 @@ export default function Navbar() {
         <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-900/50 backdrop-blur-xl border-b border-slate-800">
             <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
                 <div className="flex items-center gap-6">
-                    <Link to="/" className="flex items-center gap-3">
+                    <Link to={userRole === 'admin' ? '/admin/chaos' : '/'} className="flex items-center gap-3">
                         <div className="p-2 bg-amber-500/10 rounded-lg border border-amber-500/20">
                             <Moon className="w-6 h-6 text-amber-500" />
                         </div>
                         <span className="text-xl font-bold tracking-tight text-white">
-                            Cafe<span className="text-amber-500">Go</span>
+                            Cafe<span className="text-amber-500">Go</span> {userRole === 'admin' && <span className="text-[10px] bg-amber-500/10 text-amber-500 px-2 py-0.5 rounded-full border border-amber-500/20 ml-2">ADMIN</span>}
                         </span>
                     </Link>
 
-                    <div className={`hidden md:flex items-center gap-2 px-3 py-1 rounded-full border transition-all duration-500 ${isHealthy ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-500' : 'bg-rose-500/5 border-rose-500/20 text-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.1)]'
-                        }`}>
-                        <Activity className={`w-3 h-3 ${isHealthy ? '' : 'animate-pulse'}`} />
-                        <span className="text-[10px] font-black uppercase tracking-[0.15em]">{isHealthy ? 'System Optimal' : 'Degraded Performance'}</span>
-                    </div>
+                    {(userRole === 'admin' || isHealthy === false) && (
+                        <div className={`hidden md:flex items-center gap-2 px-3 py-1 rounded-full border transition-all duration-500 ${isHealthy ? 'bg-emerald-500/5 border-emerald-500/20 text-emerald-500' : 'bg-rose-500/5 border-rose-500/20 text-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.1)]'
+                            }`}>
+                            <Activity className={`w-3 h-3 ${isHealthy ? '' : 'animate-pulse'}`} />
+                            <span className="text-[10px] font-black uppercase tracking-[0.15em]">{isHealthy ? 'System Optimal' : 'Degraded Performance'}</span>
+                        </div>
+                    )}
                 </div>
 
                 <div className="flex items-center gap-4">
