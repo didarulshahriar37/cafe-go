@@ -36,9 +36,6 @@ You can use the following pre-seeded accounts to explore the system:
 | **Student** | `didarul@iut-dhaka.edu` | `230042137` |
 | **Student** | `ashfaque@iut-dhaka.edu` | `230042102` |
 | **Student** | `saimon@iut-dhaka.edu` | `230042103` |
-| **Student** | `shifat@iut-dhaka.edu` | `230042156` |
-| **Student** | `arafat@iut-dhaka.edu` | `230042151` |
-| **Student** | `ifham@iut-dhaka.edu` | `230042112` |
 
 ---
 
